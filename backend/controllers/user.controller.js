@@ -28,3 +28,49 @@ export const registerUser = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+export const loginUser = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Please fill in all fields' });
+        }
+
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+
+        res.cookie('jwt', createJWT(user._id), {
+            httpOnly: true,
+            sameSite: true,
+            secure : true
+        });
+
+        res.status(200).json({
+            message: 'User logged in successfully',
+            user,
+        })
+
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+export const logoutUser = async (req, res) => {
+    try {
+        res.clearCookie('jwt');
+        res.status(200).json({ message: 'User logged out successfully' });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
