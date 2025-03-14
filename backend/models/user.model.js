@@ -13,7 +13,9 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-    }
+    },
+    imageUrl: { type: String, default: null }, // ✅ Make it optional
+    logoID: { type: String, default: null } // ✅ Make it optional
 }, {
     timestamps: true,
 });
